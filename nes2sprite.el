@@ -49,22 +49,25 @@
   (defvar n2s/CHARACTOR_ROM_START (+ (* n2s/PROGRAM_ROM_PAGES n2s/PROGRAM_ROM_SIZE) n2s/NES_HEADER_SIZE))
 
   (switch-to-buffer n2s/buffer-name)
+  (setq gamegrid-use-glyphs nil)
+  (gamegrid-init (make-vector 256 nil))
   (gamegrid-init-buffer n2s/SPRITE_WIDTH
                         n2s/height
-                        32)
+                        ? )
+  (gamegrid-initialize-display)
   (dotimes (s n2s/SPRITE_NUM)
     (let ((sprite (make-vector (* 8 8) 0)))
       (dotimes (i 16)
         (dotimes (j 8)
           (if (/= (logand (aref nes (+ n2s/CHARACTOR_ROM_START (* s 16) i)) (lsh #x80 (* -1 j))) 0)
-              (aset sprite (+ (mod i 8) (* j 8)) (lsh #x01 (/ i 8))))
+              (aset sprite (+ (* (mod i 8) 8) j) (lsh #x01 (/ i 8))))
           ))
       (dotimes (i 8)
         (dotimes (j 8)
-          (let ((x (+ j (* (mod n2s/SPRITE_NUM n2s/SPRITE_PER_ROW) 8)))
-                (y (+ i (* (/ n2s/SPRITE_NUM n2s/SPRITE_PER_ROW) 8))))
+          (let ((x (+ j (* (mod s n2s/SPRITE_PER_ROW) 8)))
+                (y (+ i (* (/ s n2s/SPRITE_PER_ROW) 8))))
             (if (> (* 85 (aref sprite (+ (* i 8) j))) 128)
-                (gamegrid-set-cell x y 64))))))))
+                (gamegrid-set-cell x y ?@))))))))
 
 (provide 'nes2sprite)
 
